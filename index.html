@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026학년도 2학기 학급별 시간표</title>
+<style>
+  :root{
+    --blue:#2563eb;
+    --blue-dark:#1d4ed8;
+    --bg:#f3f4f8;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --text:#111827;
+    --sub:#6b7280;
+    --hl-bg:#fff3c4;
+    --hl-border:#f5b100;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:32px 16px 60px;
+  }
+  .wrap{max-width:1080px;margin:0 auto;}
+  h1{
+    text-align:center;
+    font-size:26px;
+    font-weight:800;
+    margin:0 0 6px;
+  }
+  .subtitle{
+    text-align:center;
+    color:var(--sub);
+    font-size:14px;
+    margin:0 0 24px;
+  }
+  .search-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px 24px;
+    margin-bottom:20px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  .search-label{
+    font-size:13px;
+    font-weight:700;
+    color:var(--text);
+    margin-bottom:8px;
+  }
+  .search-row{
+    display:flex;
+    gap:10px;
+  }
+  .search-row input{
+    flex:1;
+    padding:12px 16px;
+    border:1px solid var(--border);
+    border-radius:10px;
+    font-size:15px;
+    outline:none;
+    background:#fafafa;
+  }
+  .search-row input:focus{
+    border-color:var(--blue);
+    background:#fff;
+  }
+  .search-row button{
+    padding:0 20px;
+    border:none;
+    border-radius:10px;
+    background:#111827;
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .search-row button:hover{background:#000;}
+  .match-summary{
+    margin-top:10px;
+    font-size:13px;
+    color:var(--blue-dark);
+    font-weight:600;
+    min-height:18px;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .tab-btn{
+    padding:10px 22px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    background:var(--card);
+    font-size:14px;
+    font-weight:600;
+    color:var(--text);
+    cursor:pointer;
+  }
+  .tab-btn.active{
+    background:var(--blue);
+    color:#fff;
+    border-color:var(--blue);
+  }
+  .table-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.03);
+  }
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+  thead th{
+    background:#f8fafc;
+    color:#374151;
+    font-size:13px;
+    font-weight:700;
+    padding:14px 8px;
+    border-bottom:1px solid var(--border);
+    text-align:center;
+  }
+  thead th.period-col{width:70px;}
+  tbody td{
+    padding:12px 8px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    border-right:1px solid var(--border);
+    font-size:14px;
+    transition:background .15s, opacity .15s;
+  }
+  tbody td:last-child{border-right:none;}
+  tbody tr:last-child td{border-bottom:none;}
+  .period-cell{
+    background:#f8fafc;
+    font-weight:700;
+    color:#4b5563;
+  }
+  .cell-empty{color:#d1d5db;}
+  .subject{font-weight:700;}
+  .teacher{
+    display:block;
+    color:var(--sub);
+    font-size:12px;
+    margin-top:2px;
+  }
+  .cell-match{
+    background:var(--hl-bg) !important;
+    box-shadow:inset 0 0 0 2px var(--hl-border);
+    border-radius:6px;
+  }
+  .cell-dim{opacity:.35;}
+  footer{
+    text-align:center;
+    color:#9ca3af;
+    font-size:12px;
+    margin-top:24px;
+  }
+  @media (max-width:640px){
+    thead th, tbody td{font-size:12px;padding:8px 4px;}
+    h1{font-size:21px;}
+    .search-row{flex-direction:column;}
+    .search-row button{padding:12px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>2026학년도 2학기 학급별 시간표</h1>
+  <p class="subtitle">교사명 또는 과목명으로 검색하여 해당 수업을 확인할 수 있습니다.</p>
+
+  <div class="search-card">
+    <div class="search-label">교사/과목 검색</div>
+    <div class="search-row">
+      <input id="searchInput" type="text" placeholder="예: 황훈희, 수학, 정영선...">
+      <button id="resetBtn">초기화</button>
+    </div>
+    <div class="match-summary" id="matchSummary"></div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th class="period-col">교시</th>
+          <th>1-1</th><th>1-2</th><th>2-1</th><th>2-2</th><th>3-1</th><th>3-2</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <footer>© 2026학년도 2학기 시간표 데이터 기반 (학급별 시간표 원본 기준)</footer>
+</div>
+
+<script>
+const DATA = {"월요일":[{"period":"1","classes":{"1-1":{"subject":"과학","teacher":"정영선"},"1-2":{"subject":"체육","teacher":"최대호+예술"},"2-1":{"subject":"기가","teacher":"성지은"},"2-2":{"subject":"역사","teacher":"서우기"},"3-1":{"subject":"영어","teacher":"김수정"},"3-2":{"subject":"수학","teacher":"임용선"}}},{"period":"2","classes":{"1-1":{"subject":"수학","teacher":"신승훈"},"1-2":{"subject":"체육","teacher":"최대호+예술"},"2-1":{"subject":"과학","teacher":"이재광"},"2-2":{"subject":"역사","teacher":"서우기"},"3-1":{"subject":"기가","teacher":"성지은"},"3-2":{"subject":"영어","teacher":"김수정"}}},{"period":"3","classes":{"1-1":{"subject":"체육","teacher":"최대호+예술"},"1-2":{"subject":"수학","teacher":"신승훈"},"2-1":{"subject":"역사","teacher":"서우기"},"2-2":{"subject":"국어","teacher":"황지혜"},"3-1":{"subject":"수학","teacher":"임용선"},"3-2":{"subject":"과학","teacher":"이재광"}}},{"period":"4","classes":{"1-1":{"subject":"체육","teacher":"최대호+예술"},"1-2":{"subject":"국어","teacher":"황훈희"},"2-1":{"subject":"역사","teacher":"서우기"},"2-2":{"subject":"영어","teacher":"공미경"},"3-1":{"subject":"사회","teacher":"우세종"},"3-2":{"subject":"기가","teacher":"성지은"}}},{"period":"5","classes":{"1-1":{"subject":"영어","teacher":"김수정"},"1-2":{"subject":"진직","teacher":"전영"},"2-1":{"subject":"국어","teacher":"황지혜"},"2-2":{"subject":"미술","teacher":"임수민"},"3-1":{"subject":"과학","teacher":"이재광"},"3-2":{"subject":"동아리","teacher":"이선정"}}},{"period":"6","classes":{"1-1":{"subject":"진직","teacher":"전영"},"1-2":{"subject":"미술","teacher":"임수민"},"2-1":{"subject":"영어","teacher":"공미경"},"2-2":{"subject":"수학","teacher":"임용선"},"3-1":{"subject":"국어","teacher":"황훈희"},"3-2":{"subject":"사회","teacher":"우세종"}}}],"화요일":[{"period":"1","classes":{"1-1":{"subject":"사회","teacher":"양국진"},"1-2":{"subject":"과학","teacher":"정영선"},"2-1":{"subject":"과학","teacher":"이재광"},"2-2":{"subject":"기가","teacher":"성지은"},"3-1":{"subject":"영어","teacher":"김수정"},"3-2":{"subject":"국어","teacher":"황훈희"}}},{"period":"2","classes":{"1-1":{"subject":"국어","teacher":"황훈희"},"1-2":{"subject":"사회","teacher":"양국진"},"2-1":{"subject":"영어","teacher":"공미경"},"2-2":{"subject":"음악","teacher":"문선영"},"3-1":{"subject":"동아리","teacher":"이선정"},"3-2":{"subject":"사회","teacher":"우세종"}}},{"period":"3","classes":{"1-1":{"subject":"도덕","teacher":"임정숙"},"1-2":{"subject":"영어","teacher":"공미경"},"2-1":{"subject":"국어","teacher":"황지혜"},"2-2":{"subject":"과학","teacher":"이재광"},"3-1":{"subject":"사회","teacher":"우세종"},"3-2":{"subject":"체육","teacher":"기도담"}}},{"period":"4","classes":{"1-1":{"subject":"기가","teacher":"성지은"},"1-2":{"subject":"수학","teacher":"신승훈"},"2-1":{"subject":"과학","teacher":"정영선"},"2-2":{"subject":"수학","teacher":"임용선"},"3-1":{"subject":"음악","teacher":"문선영"},"3-2":{"subject":"체육","teacher":"기도담"}}},{"period":"5","classes":{"1-1":{"subject":"사회","teacher":"양국진"},"1-2":{"subject":"국어","teacher":"황훈희"},"2-1":{"subject":"체육","teacher":"최대호"},"2-2":{"subject":"영어","teacher":"공미경"},"3-1":{"subject":"체육","teacher":"기도담"},"3-2":{"subject":"과학","teacher":"이재광"}}},{"period":"6","classes":{"1-1":{"subject":"수학","teacher":"신승훈"},"1-2":{"subject":"사회","teacher":"양국진"},"2-1":{"subject":"음악","teacher":"문선영"},"2-2":{"subject":"체육","teacher":"최대호"},"3-1":{"subject":"체육","teacher":"기도담"},"3-2":{"subject":"영어","teacher":"김수정"}}},{"period":"7","classes":{"1-1":{"subject":"과학","teacher":"정영선"},"1-2":{"subject":"기가","teacher":"성지은"},"2-1":{"subject":"수학","teacher":"임용선"},"2-2":{"subject":"국어","teacher":"황지혜"},"3-1":{"subject":"도덕","teacher":"임정숙"},"3-2":{"subject":"음악","teacher":"문선영"}}}],"수요일":[{"period":"1","classes":{"1-1":{"subject":"스포츠","teacher":"정영+공미"},"1-2":{"subject":"스포츠","teacher":"정영+공미"},"2-1":{"subject":"수학","teacher":"임용선"},"2-2":{"subject":"국어","teacher":"황지혜"},"3-1":{"subject":"과학","teacher":"이재광"},"3-2":{"subject":"미술","teacher":"임수민"}}},{"period":"2","classes":{"1-1":{"subject":"과학","teacher":"정영선"},"1-2":{"subject":"수학","teacher":"신승훈"},"2-1":{"subject":"스포츠","teacher":"임용+공미"},"2-2":{"subject":"스포츠","teacher":"임용+공미"},"3-1":{"subject":"사회","teacher":"우세종"},"3-2":{"subject":"국어","teacher":"황훈희"}}},{"period":"3","classes":{"1-1":{"subject":"도덕","teacher":"임정숙"},"1-2":{"subject":"기가","teacher":"성지은"},"2-1":{"subject":"역사","teacher":"서우기"},"2-2":{"subject":"체육","teacher":"최대호"},"3-1":{"subject":"스포츠","teacher":"이선+김수"},"3-2":{"subject":"스포츠","teacher":"이선+김수"}}},{"period":"4","classes":{"1-1":{"subject":"영어","teacher":"공미경"},"1-2":{"subject":"도덕","teacher":"임정숙"},"2-1":{"subject":"체육","teacher":"최대호"},"2-2":{"subject":"역사","teacher":"서우기"},"3-1":{"subject":"스포츠","teacher":"이선+김수"},"3-2":{"subject":"스포츠","teacher":"이선+김수"}}},{"period":"5","classes":{"1-1":{"subject":"국어","teacher":"황훈희"},"1-2":{"subject":"영어","teacher":"김수정"},"2-1":{"subject":"기가","teacher":"성지은"},"2-2":{"subject":"과학","teacher":"이재광"},"3-1":{"subject":"미술","teacher":"임수민"},"3-2":{"subject":"국어","teacher":"황지혜"}}},{"period":"6","classes":{"1-1":{"subject":"수학","teacher":"신승훈"},"1-2":{"subject":"과학","teacher":"정영선"},"2-1":{"subject":"미술","teacher":"임수민"},"2-2":{"subject":"기가","teacher":"성지은"},"3-1":{"subject":"국어","teacher":"황지혜"},"3-2":{"subject":"과학","teacher":"이재광"}}}],"목요일":[{"period":"1","classes":{"1-1":{"subject":"수학","teacher":"신승훈"},"1-2":{"subject":"국어","teacher":"황훈희"},"2-1":{"subject":"도덕","teacher":"임정숙"},"2-2":{"subject":"진직","teacher":"전영"},"3-1":{"subject":"국어","teacher":"황지혜"},"3-2":{"subject":"영어","teacher":"김수정"}}},{"period":"2","classes":{"1-1":{"subject":"정보","teacher":"김정민"},"1-2":{"subject":"음악","teacher":"김믿음"},"2-1":{"subject":"영어","teacher":"공미경"},"2-2":{"subject":"수학","teacher":"임용선"},"3-1":{"subject":"진직","teacher":"전영"},"3-2":{"subject":"국어","teacher":"황지혜"}}},{"period":"3","classes":{"1-1":{"subject":"정보","teacher":"김정민"},"1-2":{"subject":"음악","teacher":"김믿음"},"2-1":{"subject":"수학","teacher":"임용선"},"2-2":{"subject":"도덕","teacher":"임정숙"},"3-1":{"subject":"영어","teacher":"김수정"},"3-2":{"subject":"진직","teacher":"전영"}}},{"period":"4","classes":{"1-1":{"subject":"음악","teacher":"김믿음"},"1-2":{"subject":"수학","teacher":"신승훈"},"2-1":{"subject":"진직","teacher":"전영"},"2-2":{"subject":"체육","teacher":"최대호"},"3-1":{"subject":"기가","teacher":"성지은"},"3-2":{"subject":"도덕","teacher":"임정숙"}}},{"period":"5","classes":{"1-1":{"subject":"음악","teacher":"김믿음"},"1-2":{"subject":"정보","teacher":"김정민"},"2-1":{"subject":"국어","teacher":"황지혜"},"2-2":{"subject":"과학","teacher":"정영선"},"3-1":{"subject":"과학","teacher":"이재광"},"3-2":{"subject":"사회","teacher":"우세종"}}},{"period":"6","classes":{"1-1":{"subject":"국어","teacher":"황훈희"},"1-2":{"subject":"정보","teacher":"김정민"},"2-1":{"subject":"동아리","teacher":"김수정"},"2-2":{"subject":"동아리","teacher":"최대호"},"3-1":{"subject":"사회","teacher":"우세종"},"3-2":{"subject":"기가","teacher":"성지은"}}},{"period":"7","classes":{"1-1":{"subject":"자율활동","teacher":"성지은"},"1-2":{"subject":"자율활동","teacher":"정영선"},"2-1":{"subject":"자율활동","teacher":"공미경"},"2-2":{"subject":"자율활동","teacher":"임용선"},"3-1":{"subject":"자율활동","teacher":"이재광"},"3-2":{"subject":"자율활동","teacher":"황훈희"}}}],"금요일":[{"period":"1","classes":{"1-1":{"subject":"미술","teacher":"임수민"},"1-2":{"subject":"사회","teacher":"우세종"},"2-1":{"subject":"도덕","teacher":"임정숙"},"2-2":{"subject":"수학","teacher":"임용선"},"3-1":{"subject":"수학","teacher":"수학지원"},"3-2":{"subject":"과학","teacher":"이재광"}}},{"period":"2","classes":{"1-1":{"subject":"국어","teacher":"황훈희"},"1-2":{"subject":"도덕","teacher":"임정숙"},"2-1":{"subject":"체육","teacher":"최대호"},"2-2":{"subject":"과학","teacher":"정영선"},"3-1":{"subject":"수학","teacher":"수학지원"},"3-2":{"subject":"사회","teacher":"우세종"}}},{"period":"3","classes":{"1-1":{"subject":"영어","teacher":"공미경"},"1-2":{"subject":"국어","teacher":"황훈희"},"2-1":{"subject":"국어","teacher":"황지혜"},"2-2":{"subject":"기가","teacher":"성지은"},"3-1":{"subject":"미술","teacher":"임수민"},"3-2":{"subject":"수학","teacher":"수학지원"}}},{"period":"4","classes":{"1-1":{"subject":"사회","teacher":"우세종"},"1-2":{"subject":"체육","teacher":"최대호"},"2-1":{"subject":"기가","teacher":"성지은"},"2-2":{"subject":"도덕","teacher":"임정숙"},"3-1":{"subject":"과학","teacher":"이재광"},"3-2":{"subject":"수학","teacher":"수학지원"}}},{"period":"5","classes":{"1-1":{"subject":"체육","teacher":"최대호"},"1-2":{"subject":"과학","teacher":"정영선"},"2-1":{"subject":"수학","teacher":"임용선"},"2-2":{"subject":"영어","teacher":"공미경"},"3-1":{"subject":"국어","teacher":"황훈희"},"3-2":{"subject":"영어","teacher":"김수정"}}},{"period":"6","classes":{"1-1":{"subject":"기가","teacher":"성지은"},"1-2":{"subject":"영어","teacher":"공미경"},"2-1":{"subject":"과학","teacher":"정영선"},"2-2":{"subject":"국어","teacher":"황지혜"},"3-1":{"subject":"영어","teacher":"김수정"},"3-2":{"subject":"미술","teacher":"임수민"}}}]};
+
+const DAYS = ["월요일","화요일","수요일","목요일","금요일"];
+const CLASSES = ["1-1","1-2","2-1","2-2","3-1","3-2"];
+
+let currentDay = "월요일";
+let query = "";
+
+const tabsEl = document.getElementById('tabs');
+const tbodyEl = document.getElementById('tbody');
+const searchInput = document.getElementById('searchInput');
+const resetBtn = document.getElementById('resetBtn');
+const matchSummaryEl = document.getElementById('matchSummary');
+
+function buildTabs(){
+  tabsEl.innerHTML = "";
+  DAYS.forEach(day=>{
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (day===currentDay ? ' active' : '');
+    btn.textContent = day;
+    btn.onclick = ()=>{ currentDay = day; render(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function countMatches(){
+  if(!query) return 0;
+  let n = 0;
+  DAYS.forEach(day=>{
+    (DATA[day]||[]).forEach(row=>{
+      CLASSES.forEach(cls=>{
+        const c = row.classes[cls];
+        if(!c) return;
+        if(c.subject.includes(query) || c.teacher.includes(query)) n++;
+      });
+    });
+  });
+  return n;
+}
+
+function render(){
+  buildTabs();
+  const rows = DATA[currentDay] || [];
+  tbodyEl.innerHTML = "";
+  rows.forEach(row=>{
+    const tr = document.createElement('tr');
+    const th = document.createElement('td');
+    th.className = 'period-cell';
+    th.textContent = row.period.trim() + '교시';
+    tr.appendChild(th);
+    CLASSES.forEach(cls=>{
+      const c = row.classes[cls];
+      const td = document.createElement('td');
+      if(!c || !c.subject){
+        td.innerHTML = '<span class="cell-empty">-</span>';
+      } else {
+        const isMatch = query && (c.subject.includes(query) || c.teacher.includes(query));
+        td.innerHTML = `<span class="subject">${c.subject}</span><span class="teacher">${c.teacher}</span>`;
+        if(query){
+          td.classList.add(isMatch ? 'cell-match' : 'cell-dim');
+        }
+      }
+      tr.appendChild(td);
+    });
+    tbodyEl.appendChild(tr);
+  });
+
+  if(query){
+    const total = countMatches();
+    matchSummaryEl.textContent = total > 0
+      ? `"${query}" 검색 결과: 전체 ${total}건 (현재 요일에서 노란색으로 표시)`
+      : `"${query}"에 대한 검색 결과가 없습니다.`;
+  } else {
+    matchSummaryEl.textContent = "";
+  }
+}
+
+searchInput.addEventListener('input', (e)=>{
+  query = e.target.value.trim();
+  render();
+});
+
+resetBtn.addEventListener('click', ()=>{
+  query = "";
+  searchInput.value = "";
+  render();
+});
+
+render();
+</script>
+</body>
+</html>
